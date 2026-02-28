@@ -10,6 +10,7 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const cache_manager_1 = require("@nestjs/cache-manager");
+const schedule_1 = require("@nestjs/schedule");
 const prisma_module_1 = require("./prisma/prisma.module");
 const auth_module_1 = require("./auth/auth.module");
 const blog_module_1 = require("./blog/blog.module");
@@ -31,6 +32,7 @@ exports.AppModule = AppModule = __decorate([
                 ttl: 60000,
                 isGlobal: true,
             }),
+            schedule_1.ScheduleModule.forRoot(),
             prisma_module_1.PrismaModule,
             telegram_module_1.TelegramModule,
             auth_module_1.AuthModule,

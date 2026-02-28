@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { Subject, Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
@@ -179,6 +180,20 @@ export class ChatService {
       }
     } catch (err) {
       this.logger.error('Failed to send to Telegram', err);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  async cleanupOldChats() {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const { count } = await this.prisma.chatConversation.deleteMany({
+      where: { createdAt: { lt: thirtyDaysAgo } },
+    });
+
+    if (count > 0) {
+      this.logger.log(`Cleaned up ${count} old chat conversations`);
     }
   }
 
