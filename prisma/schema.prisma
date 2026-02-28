@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model BlogPost {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique @db.VarChar(255)
+  category    String   @db.VarChar(50)
+  readTime    Int      @map("read_time")
+  image       String   @db.VarChar(500)
+  publishedAt DateTime @map("published_at")
+  author      String   @db.VarChar(200)
+  isPublished Boolean  @default(false) @map("is_published")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  translations BlogPostTranslation[]
+  sections     BlogSection[]
+
+  @@map("blog_posts")
+}
+
+model BlogPostTranslation {
+  id              Int    @id @default(autoincrement())
+  postId          Int    @map("post_id")
+  locale          String @db.VarChar(5)
+  metaTitle       String @map("meta_title") @db.VarChar(500)
+  metaDescription String @map("meta_description") @db.Text
+  title           String @db.Text
+  intro           String @db.Text
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, locale])
+  @@map("blog_post_translations")
+}
+
+model BlogSection {
+  id        Int    @id @default(autoincrement())
+  postId    Int    @map("post_id")
+  key       String @db.VarChar(100)
+  type      String @db.VarChar(20)
+  sortOrder Int    @default(0) @map("sort_order")
+
+  post         BlogPost                  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  translations BlogSectionTranslation[]
+  listItems    BlogSectionListItem[]
+  detailItems  BlogSectionDetailItem[]
+
+  @@unique([postId, key])
+  @@map("blog_sections")
+}
+
+model BlogSectionTranslation {
+  id        Int    @id @default(autoincrement())
+  sectionId Int    @map("section_id")
+  locale    String @db.VarChar(5)
+  title     String @db.Text
+  content   String @db.Text
+
+  section BlogSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@unique([sectionId, locale])
+  @@map("blog_section_translations")
+}
+
+model BlogSectionListItem {
+  id        Int    @id @default(autoincrement())
+  sectionId Int    @map("section_id")
+  locale    String @db.VarChar(5)
+  sortOrder Int    @default(0) @map("sort_order")
+  text      String @db.Text
+
+  section BlogSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@map("blog_section_list_items")
+}
+
+model BlogSectionDetailItem {
+  id        Int    @id @default(autoincrement())
+  sectionId Int    @map("section_id")
+  locale    String @db.VarChar(5)
+  sortOrder Int    @default(0) @map("sort_order")
+  subtitle  String @db.Text
+  text      String @db.Text
+
+  section BlogSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@map("blog_section_detail_items")
+}
+
+// ─── Calculator ───
+
+model ProjectType {
+  id           Int     @id @default(autoincrement())
+  key          String  @unique @db.VarChar(50)
+  basePriceMin Int     @map("base_price_min")
+  basePriceMax Int     @map("base_price_max")
+  isMonthly    Boolean @default(false) @map("is_monthly")
+  skipDesign   Boolean @default(false) @map("skip_design")
+  sortOrder    Int     @default(0) @map("sort_order")
+
+  featureCategories FeatureCategory[]
+  scopeModifiers    ScopeModifier[]
+
+  @@map("project_types")
+}
+
+model DesignLevel {
+  id         Int   @id @default(autoincrement())
+  key        String @unique @db.VarChar(50)
+  multiplier Float
+  sortOrder  Int    @default(0) @map("sort_order")
+
+  @@map("design_levels")
+}
+
+model FeatureCategory {
+  id             Int    @id @default(autoincrement())
+  projectTypeKey String @map("project_type_key") @db.VarChar(50)
+  categoryKey    String @map("category_key") @db.VarChar(100)
+  sortOrder      Int    @default(0) @map("sort_order")
+
+  projectType ProjectType @relation(fields: [projectTypeKey], references: [key])
+  features    Feature[]
+
+  @@unique([projectTypeKey, categoryKey], map: "unique_project_category")
+  @@map("feature_categories")
+}
+
+model Feature {
+  id          Int     @id @default(autoincrement())
+  categoryId  Int     @map("category_id")
+  key         String  @db.VarChar(100)
+  priceMin    Int     @map("price_min")
+  priceMax    Int     @map("price_max")
+  recommended Boolean @default(false)
+  sortOrder   Int     @default(0) @map("sort_order")
+
+  category FeatureCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("features")
+}
+
+model ScopeModifier {
+  id             Int    @id @default(autoincrement())
+  projectTypeKey String @map("project_type_key") @db.VarChar(50)
+  key            String @db.VarChar(100)
+  sortOrder      Int    @default(0) @map("sort_order")
+
+  projectType ProjectType @relation(fields: [projectTypeKey], references: [key])
+  options     ScopeModifierOption[]
+
+  @@map("scope_modifiers")
+}
+
+model ScopeModifierOption {
+  id              Int   @id @default(autoincrement())
+  scopeModifierId Int   @map("scope_modifier_id")
+  value           String @db.VarChar(100)
+  multiplier      Float
+  sortOrder       Int    @default(0) @map("sort_order")
+
+  scopeModifier ScopeModifier @relation(fields: [scopeModifierId], references: [id], onDelete: Cascade)
+
+  @@map("scope_modifier_options")
+}
+
+model Submission {
+  id             Int      @id @default(autoincrement())
+  source         String   @db.VarChar(20)
+  name           String   @db.VarChar(200)
+  email          String   @db.VarChar(200)
+  phone          String?  @db.VarChar(50)
+  message        String?  @db.Text
+  projectType    String?  @map("project_type") @db.VarChar(50)
+  designLevel    String?  @map("design_level") @db.VarChar(50)
+  features       String?  @db.Text
+  scopeModifiers String?  @map("scope_modifiers") @db.Text
+  adBudget       String?  @map("ad_budget") @db.VarChar(50)
+  priceMin       Int?     @map("price_min")
+  priceMax       Int?     @map("price_max")
+  isMonthly      Boolean? @default(false) @map("is_monthly")
+  solutions      String?  @db.Text
+  serviceTypes   String?  @map("service_types") @db.Text
+  budget         String?  @db.VarChar(100)
+  labels         String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("submissions")
+}

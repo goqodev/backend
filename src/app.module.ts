@@ -1,0 +1,32 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
+import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
+import { BlogModule } from './blog/blog.module';
+import { AdminBlogModule } from './admin/blog/admin-blog.module';
+import { UploadModule } from './upload/upload.module';
+import { TelegramModule } from './telegram/telegram.module';
+import { CalculatorModule } from './calculator/calculator.module';
+import { SubmissionsModule } from './submissions/submissions.module';
+import { AdminCalculatorModule } from './admin/calculator/admin-calculator.module';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    CacheModule.register({
+      ttl: 60000, // 60s default
+      isGlobal: true,
+    }),
+    PrismaModule,
+    TelegramModule,
+    AuthModule,
+    BlogModule,
+    AdminBlogModule,
+    UploadModule,
+    CalculatorModule,
+    SubmissionsModule,
+    AdminCalculatorModule,
+  ],
+})
+export class AppModule {}
