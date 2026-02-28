@@ -10,6 +10,7 @@ import { TelegramModule } from './telegram/telegram.module';
 import { CalculatorModule } from './calculator/calculator.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { AdminCalculatorModule } from './admin/calculator/admin-calculator.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AdminCalculatorModule } from './admin/calculator/admin-calculator.modul
     CalculatorModule,
     SubmissionsModule,
     AdminCalculatorModule,
+    ChatModule,
   ],
 })
 export class AppModule {}

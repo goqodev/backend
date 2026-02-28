@@ -19,6 +19,7 @@ const telegram_module_1 = require("./telegram/telegram.module");
 const calculator_module_1 = require("./calculator/calculator.module");
 const submissions_module_1 = require("./submissions/submissions.module");
 const admin_calculator_module_1 = require("./admin/calculator/admin-calculator.module");
+const chat_module_1 = require("./chat/chat.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -39,6 +40,7 @@ exports.AppModule = AppModule = __decorate([
             calculator_module_1.CalculatorModule,
             submissions_module_1.SubmissionsModule,
             admin_calculator_module_1.AdminCalculatorModule,
+            chat_module_1.ChatModule,
         ],
     })
 ], AppModule);
